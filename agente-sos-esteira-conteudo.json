@@ -1,0 +1,167 @@
+{
+  "name": "Agente SOS - Esteira de Conteudo",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "YOUR_NOTION_DATABASE_ID",
+          "mode": "id"
+        },
+        "limit": 1,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Status|status",
+              "condition": "equals",
+              "optionValue": "Em andamento"
+            }
+          ]
+        },
+        "options": {
+          "sort": {
+            "sortValue": [
+              {
+                "key": "Data/Hora|date",
+                "direction": "ascending"
+              },
+              {
+                "key": "Turno|rich_text",
+                "direction": "ascending"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [-384, -128],
+      "id": "notion-buscar-posts",
+      "name": "📥 Notion: Buscar Posts Aprovados"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-640, -128],
+      "id": "teste-manual",
+      "name": "▶️ Teste Manual"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12,17 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [-176, -128],
+      "id": "disparador-horario",
+      "name": "⏰ Disparador: 12h e 17h"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('📥 Notion: Buscar Posts Aprovados').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Chamadas Stories (IA)|rich_text",
+              "textContent": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [368, -128],
+      "id": "notion-salvar-stories",
+      "name": "📤 Notion: Salvar Stories na Tabela"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [-32, 80],
+      "id": "modelo-gemini",
+      "name": "⚡ Modelo Google Gemini"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é o estrategista de conteúdo do grupo de rap SOS (@sos3oficial).\n\nLeia a legenda do nosso próximo post que veio do Notion:\n{{ $json.property_legenda }}\n\nCom base nessa mensagem, crie 3 opções de chamadas curtas, viscerais e impactantes para os Stories do Instagram convocando o público para fazer o pré-save do álbum \"Da Sobrevivência à Soberania\" que será lançado no dia 20 de Novembro.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Você é o estrategista de conteúdo do grupo de rap SOS (@sos3oficial).  Leia a legenda do nosso próximo post que veio do Notion: {{ $json.property_legenda }}  Com base nessa mensagem, crie 3 opções de chamadas curtas, viscerais e impactantes para os Stories do Instagram convocando o público para fazer o pré-save do álbum \"Da Sobrevivência à Soberania\" que será lançado no dia 20 de Novembro."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [48, -128],
+      "id": "ia-criar-chamadas",
+      "name": "🧠 IA: Criar Chamadas Stories"
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=👑 AGENTE SOS: POST ENRIQUECIDO COM SUCESSO!  📅 Post: {{ $('📥 Notion: Buscar Posts Aprovados').item.json.name }} ⏰ Turno: {{ $('📥 Notion: Buscar Posts Aprovados').item.json.property_turno }}  ✨ As chamadas de Stories foram criadas pelo Gemini e salvas na tabela do Notion.  Pronto para entrar na esteira de publicação! 🚀",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [576, -128],
+      "id": "telegram-alerta",
+      "name": "Telegram: Alerta Mensagem"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "📥 Notion: Buscar Posts Aprovados": {
+      "main": [[{ "node": "🧠 IA: Criar Chamadas Stories", "type": "main", "index": 0 }]]
+    },
+    "▶️ Teste Manual": {
+      "main": [[{ "node": "📥 Notion: Buscar Posts Aprovados", "type": "main", "index": 0 }]]
+    },
+    "⚡ Modelo Google Gemini": {
+      "ai_languageModel": [[{ "node": "🧠 IA: Criar Chamadas Stories", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "🧠 IA: Criar Chamadas Stories": {
+      "main": [[{ "node": "📤 Notion: Salvar Stories na Tabela", "type": "main", "index": 0 }]]
+    },
+    "📤 Notion: Salvar Stories na Tabela": {
+      "main": [[{ "node": "Telegram: Alerta Mensagem", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "nodeGroups": [],
+  "tags": []
+}

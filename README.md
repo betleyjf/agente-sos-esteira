@@ -1,14 +1,14 @@
 # 👑 Agente Autônomo SOS — Esteira Inteligente de Conteúdo Multicanal
 
 > **Case Real de Automação com IA & No-Code / Low-Code**  
-> Desenvolvido por **Betley Ferreira** ([LinkedIn](https://linkedin.com) • [GitHub](https://github.com/betleyjf))  
+> Desenvolvido por **Betley Ferreira** ([LinkedIn](https://www.linkedin.com/in/betleyferreira/) • [GitHub](https://github.com/betleyjf))  
 > Projeto: Campanha de Lançamento do Álbum *"Da Sobrevivência à Soberania"* — Grupo **SOS** (`@sos3oficial`)
 
 ---
 
 ## 🎯 Visão Geral do Projeto
 
-Este projeto é uma **esteira de inteligência e distribuição de conteúdo 100% autônoma**, construída para orquestrar a campanha de retorno do lendário grupo de rap de Belo Horizonte **SOS**, após 20 anos de hiato histórico.
+Este projeto é uma **esteira de inteligência e distribuição de conteúdo 100% autônoma**, construída para orquestrar a campanha de retorno do lendário grupo de rap de Belo Horizonte **SOS**.
 
 O sistema elimina o trabalho manual de agendamento e adaptação de conteúdo, conectando um banco de dados relacional de copywriting à inteligência generativa multimodal e distribuindo mídias dinâmicas (Fotos e Vídeos) para **Instagram Feed, Instagram Reels e YouTube Shorts** com base em regras de roteamento inteligente.
 

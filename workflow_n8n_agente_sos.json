@@ -1,0 +1,309 @@
+{
+  "name": "👑 Agente SOS - Esteira de Conteúdo",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "402e4616-5d05-80fe-9b91-000b2df03fb5",
+          "mode": "list",
+          "cachedResultName": "👑 SOS \"Da Sobrevivência à Soberania\"",
+          "cachedResultUrl": "https://app.notion.com/p/402e46165d058078986fe9f10848b4a1"
+        },
+        "limit": 1,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Status|status",
+              "condition": "equals",
+              "optionValue": "Em andamento"
+            }
+          ]
+        },
+        "options": {
+          "sort": {
+            "sortValue": [
+              {
+                "key": "Data/Hora|date",
+                "direction": "ascending"
+              },
+              {
+                "key": "Turno|rich_text",
+                "direction": "ascending"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        -544,
+        -176
+      ],
+      "id": "f82df8fe-0112-4ae5-9f09-f566cdc9d881",
+      "name": "📥 Notion: Buscar Posts Aprovados",
+      "credentials": {
+        "notionApi": {
+          "id": "YTYUw6Qmkp9LYNC3",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -176
+      ],
+      "id": "7ef2e168-5e0e-4c68-a5a2-1f1c9701945d",
+      "name": "▶️ Teste Manual"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 12,17 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -336,
+        -176
+      ],
+      "id": "cc94b5a9-3bc4-46f8-8358-171a68ef7df8",
+      "name": "⏰ Disparador: 12h e 17h"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('📥 Notion: Buscar Posts Aprovados').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Chamadas Stories (IA)|rich_text",
+              "textContent": "={{ $json.text }}"
+            },
+            {
+              "key": "Status|status",
+              "statusValue": "Concluído"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        208,
+        -176
+      ],
+      "id": "bfb96f58-1461-44c0-affc-c8072205ac8d",
+      "name": "📤 Notion: Salvar Stories na Tabela",
+      "credentials": {
+        "notionApi": {
+          "id": "YTYUw6Qmkp9LYNC3",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        32
+      ],
+      "id": "1d0f5d5f-f726-4acc-bdc6-da968ceeb1ae",
+      "name": "⚡ Modelo Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "e9gU7KiDyksTtWRW",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é o estrategista de conteúdo do grupo de rap SOS (@sos3oficial).\n\nLeia a legenda do nosso próximo post que veio do Notion:\n{{ $json.property_legenda }}\n\nCom base nessa mensagem, crie 3 opções de chamadas curtas, viscerais e impactantes para os Stories do Instagram convocando o público para fazer o pré-save do álbum \"Da Sobrevivência à Soberania\" que será lançado no dia 20 de Novembro.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Você é o estrategista de conteúdo do grupo de rap SOS (@sos3oficial).  Leia a legenda do nosso próximo post que veio do Notion: {{ $json.property_legenda }}  Com base nessa mensagem, crie 3 opções de chamadas curtas, viscerais e impactantes para os Stories do Instagram convocando o público para fazer o pré-save do álbum \"Da Sobrevivência à Soberania\" que será lançado no dia 20 de Novembro."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -112,
+        -176
+      ],
+      "id": "0253fd12-6839-4eca-8c64-f83d2a18b919",
+      "name": "🧠 IA: Criar Chamadas Stories"
+    },
+    {
+      "parameters": {
+        "chatId": "SEU_TELEGRAM_CHAT_ID",
+        "text": "=👑 AGENTE SOS: POST ENRIQUECIDO COM SUCESSO!  📅 Post: {{ $('📥 Notion: Buscar Posts Aprovados').item.json.name }} ⏰ Turno: {{ $('📥 Notion: Buscar Posts Aprovados').item.json.property_turno }}  ✨ As chamadas de Stories foram criadas pelo Gemini e salvas na tabela do Notion.  Pronto para entrar na esteira de publicação! 🚀",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        -176
+      ],
+      "id": "c2cc3348-fbd6-4b55-936f-fbd2838dcc29",
+      "name": "Telegram: Alerta Mensagem",
+      "webhookId": "ddc6397b-9d38-4d5e-bff2-ec5868c6f604",
+      "credentials": {
+        "telegramApi": {
+          "id": "BsPDnh5UfZ2MCTq5",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hook.us2.make.com/SEU_WEBHOOK_DO_MAKE_AQUI",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {},
+            {
+              "name": "media_url",
+              "value": "={{ $('📥 Notion: Buscar Posts Aprovados').item.json.property_url_da_imagem }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $('📥 Notion: Buscar Posts Aprovados').item.json.property_legenda }}"
+            },
+            {
+              "name": "content_type",
+              "value": "={{ $('📥 Notion: Buscar Posts Aprovados').item.json['property_tipo_de_conteúdo'] }}\n\n  "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        640,
+        -176
+      ],
+      "id": "8a3dbd79-6f35-4cb4-a3fc-c7377f3ab383",
+      "name": "🚀 Disparar para o Instagram (Make)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "📥 Notion: Buscar Posts Aprovados": {
+      "main": [
+        [
+          {
+            "node": "🧠 IA: Criar Chamadas Stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "▶️ Teste Manual": {
+      "main": [
+        [
+          {
+            "node": "📥 Notion: Buscar Posts Aprovados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚡ Modelo Google Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🧠 IA: Criar Chamadas Stories",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 IA: Criar Chamadas Stories": {
+      "main": [
+        [
+          {
+            "node": "📤 Notion: Salvar Stories na Tabela",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📤 Notion: Salvar Stories na Tabela": {
+      "main": [
+        [
+          {
+            "node": "Telegram: Alerta Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram: Alerta Mensagem": {
+      "main": [
+        [
+          {
+            "node": "🚀 Disparar para o Instagram (Make)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "1fdc1f3d-a930-48ac-8cbb-4ef43fbc8eda",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "127fdb51e64f4bd1cd25550b1c8d5fd8d7c547eb04e5713ae85db70dd96c2b1d"
+  },
+  "nodeGroups": [],
+  "id": "cZxQqywYQ5VZyihT",
+  "tags": []
+}
